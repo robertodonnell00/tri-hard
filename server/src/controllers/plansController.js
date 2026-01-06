@@ -1,0 +1,90 @@
+import Plan from "../models/Plan.js";
+import mongoose from "mongoose";
+
+const isId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+export async function listPlans(req, res) {
+  try {
+    const { eventType } = req.query;
+    const filter = {};
+    if (eventType) filter.eventType = eventType;
+
+    const plans = await Plan.find(filter).sort({ createdAt: -1 });
+    res.json(plans);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch plans", details: err.message });
+  }
+}
+
+export async function getPlan(req, res) {
+  try {
+    const { id } = req.params;
+    if (!isId(id)) return res.status(400).json({ error: "Invalid plan id" });
+
+    const plan = await Plan.findById(id);
+    if (!plan) return res.status(404).json({ error: "Plan not found" });
+
+    res.json(plan);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch plan", details: err.message });
+  }
+}
+
+export async function createPlan(req, res) {
+  try {
+    const { name, eventType, raceDate, daysPerWeek, swimLevel, bikeLevel, runLevel, outline } = req.body;
+
+    if (!name || !eventType || !raceDate || !daysPerWeek) {
+      return res.status(400).json({ error: "name, eventType, raceDate, daysPerWeek are required" });
+    }
+
+    const plan = await Plan.create({
+      name,
+      eventType,
+      raceDate,
+      daysPerWeek,
+      swimLevel,
+      bikeLevel,
+      runLevel,
+      outline,
+    });
+
+    res.status(201).json(plan);
+  } catch (err) {
+  const status = err?.name === "ValidationError" ? 400 : 500;
+  res.status(status).json({ error: "Failed to create plan", details: err.message });
+    }
+}
+
+export async function updatePlan(req, res) {
+  try {
+    const { id } = req.params;
+    if (!isId(id)) return res.status(400).json({ error: "Invalid plan id" });
+
+    const updated = await Plan.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updated) return res.status(404).json({ error: "Plan not found" });
+
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to update plan", details: err.message });
+  }
+}
+
+export async function deletePlan(req, res) {
+  try {
+    const { id } = req.params;
+    if (!isId(id)) return res.status(400).json({ error: "Invalid plan id" });
+
+    const deleted = await Plan.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ error: "Plan not found" });
+
+    // common REST pattern is 204 No Content
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete plan", details: err.message });
+  }
+}

@@ -1,22 +1,19 @@
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-4">
-          <h1 className="text-2xl font-bold tracking-tight">Tri-Hard</h1>
-          <p className="text-sm text-gray-600">Triathlon training plan generator</p>
-        </div>
-      </header>
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import PlansListPage from "./pages/PlansListPage.jsx";
+import PlanCreatePage from "./pages/PlanCreatePage.jsx";
+import PlanEditPage from "./pages/PlanEditPage.jsx";
+import PlanViewPage from "./pages/PlanViewPage.jsx";
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-2 text-xl font-semibold">Welcome</h2>
-          <p className="text-gray-700">
-            Tailwind is working if this layout looks styled.
-          </p>
-        </div>
-      </main>
-    </div>
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/plans" replace />} />
+        <Route path="/plans" element={<PlansListPage />} />
+        <Route path="/plans/new" element={<PlanCreatePage />} />
+        <Route path="/plans/:id" element={<PlanViewPage />} />
+        <Route path="/plans/:id/edit" element={<PlanEditPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-export default App;
