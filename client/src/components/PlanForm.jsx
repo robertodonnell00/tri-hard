@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { generatePlan } from "../api/plansApi.js";
 
 const defaultPlan = {
   name: "",
@@ -17,9 +18,14 @@ export default function PlanForm({
   submitting = false,
   submitLabel = "Save",
 }) {
-  const initial = useMemo(() => ({ ...defaultPlan, ...(initialValue ?? {}) }), [initialValue]);
+  const initial = useMemo(
+    () => ({ ...defaultPlan, ...(initialValue ?? {}) }),
+    [initialValue]
+  );
+
   const [form, setForm] = useState(initial);
   const [error, setError] = useState("");
+  const [generating, setGenerating] = useState(false);
 
   function set(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
@@ -27,13 +33,20 @@ export default function PlanForm({
 
   function addOutlineRow() {
     const nextWeek =
-      form.outline.length > 0 ? Math.max(...form.outline.map((w) => w.week ?? 0)) + 1 : 1;
+      form.outline.length > 0
+        ? Math.max(...form.outline.map((w) => w.week ?? 0)) + 1
+        : 1;
 
-    set("outline", [...form.outline, { week: nextWeek, focus: "", notes: "" }]);
+    set("outline", [
+      ...form.outline,
+      { week: nextWeek, focus: "", notes: "" },
+    ]);
   }
 
   function updateOutlineRow(idx, key, value) {
-    const next = form.outline.map((row, i) => (i === idx ? { ...row, [key]: value } : row));
+    const next = form.outline.map((row, i) =>
+      i === idx ? { ...row, [key]: value } : row
+    );
     set("outline", next);
   }
 
@@ -42,17 +55,43 @@ export default function PlanForm({
     set("outline", next);
   }
 
+  async function onGenerate() {
+    setError("");
+
+    if (!form.eventType)
+      return setError("Event type is required to generate.");
+    if (!form.raceDate)
+      return setError("Race date is required to generate.");
+
+    setGenerating(true);
+    try {
+      const result = await generatePlan({
+        eventType: form.eventType,
+        raceDate: form.raceDate,
+        daysPerWeek: Number(form.daysPerWeek),
+        swimLevel: Number(form.swimLevel),
+        bikeLevel: Number(form.bikeLevel),
+        runLevel: Number(form.runLevel),
+      });
+
+      set("outline", result.outline);
+    } catch (err) {
+      setError(err.message || "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
-    // minimal client-side validation 
     if (!form.name.trim()) return setError("Name is required.");
     if (!form.raceDate) return setError("Race date is required.");
-    if (!form.daysPerWeek) return setError("Days per week is required.");
+    if (!form.daysPerWeek)
+      return setError("Days per week is required.");
 
     try {
-      // send raceDate as ISO string or date string then server handles casting
       await onSubmit({
         ...form,
         daysPerWeek: Number(form.daysPerWeek),
@@ -66,9 +105,18 @@ export default function PlanForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, maxWidth: 720 }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "grid", gap: 12, maxWidth: 720 }}
+    >
       {error && (
-        <div style={{ padding: 10, border: "1px solid #f5c2c7", background: "#f8d7da" }}>
+        <div
+          style={{
+            padding: 10,
+            border: "1px solid #f5c2c7",
+            background: "#f8d7da",
+          }}
+        >
           {error}
         </div>
       )}
@@ -85,7 +133,10 @@ export default function PlanForm({
 
       <label>
         Event Type
-        <select value={form.eventType} onChange={(e) => set("eventType", e.target.value)}>
+        <select
+          value={form.eventType}
+          onChange={(e) => set("eventType", e.target.value)}
+        >
           <option value="sprint">Sprint</option>
           <option value="olympic">Olympic</option>
           <option value="70.3">70.3</option>
@@ -113,9 +164,15 @@ export default function PlanForm({
         />
       </label>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 12,
+        }}
+      >
         <label>
-          Swim Level (1-5)
+          Swim Level
           <input
             type="number"
             min={1}
@@ -125,7 +182,7 @@ export default function PlanForm({
           />
         </label>
         <label>
-          Bike Level (1-5)
+          Bike Level
           <input
             type="number"
             min={1}
@@ -135,7 +192,7 @@ export default function PlanForm({
           />
         </label>
         <label>
-          Run Level (1-5)
+          Run Level
           <input
             type="number"
             min={1}
@@ -151,10 +208,19 @@ export default function PlanForm({
         <button type="button" onClick={addOutlineRow}>
           + Add week
         </button>
+        <button
+          type="button"
+          onClick={onGenerate}
+          disabled={generating}
+        >
+          {generating ? "Generating..." : "Generate outline"}
+        </button>
       </div>
 
       {form.outline.length === 0 ? (
-        <div style={{ opacity: 0.7 }}>No outline rows yet.</div>
+        <div style={{ opacity: 0.7 }}>
+          No outline rows yet.
+        </div>
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {form.outline.map((row, idx) => (
@@ -168,21 +234,39 @@ export default function PlanForm({
                 gap: 8,
               }}
             >
-              <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 10 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "120px 1fr",
+                  gap: 10,
+                }}
+              >
                 <label>
                   Week
                   <input
                     type="number"
                     min={1}
                     value={row.week ?? ""}
-                    onChange={(e) => updateOutlineRow(idx, "week", Number(e.target.value))}
+                    onChange={(e) =>
+                      updateOutlineRow(
+                        idx,
+                        "week",
+                        Number(e.target.value)
+                      )
+                    }
                   />
                 </label>
                 <label>
                   Focus
                   <input
                     value={row.focus ?? ""}
-                    onChange={(e) => updateOutlineRow(idx, "focus", e.target.value)}
+                    onChange={(e) =>
+                      updateOutlineRow(
+                        idx,
+                        "focus",
+                        e.target.value
+                      )
+                    }
                     placeholder="e.g. Build aerobic base"
                     style={{ width: "100%" }}
                   />
@@ -193,13 +277,23 @@ export default function PlanForm({
                 Notes
                 <textarea
                   value={row.notes ?? ""}
-                  onChange={(e) => updateOutlineRow(idx, "notes", e.target.value)}
+                  onChange={(e) =>
+                    updateOutlineRow(
+                      idx,
+                      "notes",
+                      e.target.value
+                    )
+                  }
                   rows={2}
                   style={{ width: "100%" }}
                 />
               </label>
 
-              <button type="button" onClick={() => removeOutlineRow(idx)} style={{ width: "fit-content" }}>
+              <button
+                type="button"
+                onClick={() => removeOutlineRow(idx)}
+                style={{ width: "fit-content" }}
+              >
                 Remove
               </button>
             </div>

@@ -43,3 +43,12 @@ export async function deletePlan(id) {
   const res = await fetch(`${BASE}/api/plans/${id}`, { method: "DELETE" });
   return handle(res);
 }
+
+export async function generatePlan(payload) {
+  const res = await fetch(`${BASE}/api/plans/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle(res);
+}

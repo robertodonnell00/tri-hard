@@ -1,5 +1,6 @@
 import Plan from "../models/Plan.js";
 import mongoose from "mongoose";
+import { generateOutline } from "../services/planGenerator.js";
 
 const isId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -86,5 +87,29 @@ export async function deletePlan(req, res) {
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: "Failed to delete plan", details: err.message });
+  }
+}
+
+export async function generatePlan(req, res) {
+  try {
+    const { eventType, raceDate, daysPerWeek, swimLevel, bikeLevel, runLevel, startDate } = req.body;
+
+    if (!eventType || !raceDate) {
+      return res.status(400).json({ error: "eventType and raceDate are required" });
+    }
+
+    const result = generateOutline({
+      eventType,
+      raceDate,
+      daysPerWeek,
+      swimLevel,
+      bikeLevel,
+      runLevel,
+      startDate,
+    });
+
+    return res.json(result);
+  } catch (err) {
+    return res.status(400).json({ error: "Failed to generate plan", details: err.message });
   }
 }
