@@ -32,17 +32,31 @@ export async function getPlan(req, res) {
 }
 
 export async function createPlan(req, res) {
+  console.log("CREATE PLAN BODY:", req.body);
   try {
-    const { name, eventType, raceDate, daysPerWeek, swimLevel, bikeLevel, runLevel, outline } = req.body;
+    const {
+      name,
+      eventType,
+      raceDate,
+      startDate,
+      daysPerWeek,
+      swimLevel,
+      bikeLevel,
+      runLevel,
+      outline
+    } = req.body;
 
     if (!name || !eventType || !raceDate || !daysPerWeek) {
-      return res.status(400).json({ error: "name, eventType, raceDate, daysPerWeek are required" });
+      return res.status(400).json({
+        error: "name, eventType, raceDate, daysPerWeek are required"
+      });
     }
 
     const plan = await Plan.create({
       name,
       eventType,
       raceDate,
+      startDate,
       daysPerWeek,
       swimLevel,
       bikeLevel,
@@ -52,9 +66,12 @@ export async function createPlan(req, res) {
 
     res.status(201).json(plan);
   } catch (err) {
-  const status = err?.name === "ValidationError" ? 400 : 500;
-  res.status(status).json({ error: "Failed to create plan", details: err.message });
-    }
+    const status = err?.name === "ValidationError" ? 400 : 500;
+    res.status(status).json({
+      error: "Failed to create plan",
+      details: err.message
+    });
+  }
 }
 
 export async function updatePlan(req, res) {

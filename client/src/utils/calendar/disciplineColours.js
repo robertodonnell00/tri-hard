@@ -3,12 +3,12 @@ export function getDisciplineColor(type) {
 
   switch (normalised) {
     case "swim":
-      return "#3b82f6";
+      return "#3b82f6";   // blue
     case "bike":
-      return "#22c55e";
+      return "#22c55e";   // green
     case "run":
-      return "#f97316";
+      return "#f97316";   // orange
     default:
-      return "#6b7280";
+      return "#6b7280";   // grey fallback
   }
 }

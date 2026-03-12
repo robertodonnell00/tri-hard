@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getPlan } from "../api/plansApi.js";
+import { mapPlanToEvents } from "../utils/calendar/mapPlanToEvents.js";
+import PlanCalendar from "../components/PlanCalendar.jsx";
 
 export default function PlanViewPage() {
   const { id } = useParams();
   const [plan, setPlan] = useState(null);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -15,6 +18,7 @@ export default function PlanViewPage() {
       try {
         const data = await getPlan(id);
         setPlan(data);
+        setEvents(mapPlanToEvents(data));
       } catch (err) {
         setError(err.message || "Failed to load plan");
       } finally {
@@ -47,18 +51,20 @@ export default function PlanViewPage() {
             <li>Run: {plan.runLevel}</li>
           </ul>
 
-          <h3 style={{ marginTop: 18 }}>Outline</h3>
-          {plan.outline?.length ? (
-            <div style={{ display: "grid", gap: 10 }}>
-              {plan.outline.map((w) => (
-                <div key={w._id ?? `${w.week}-${w.focus}`} style={{ border: "1px solid #ddd", borderRadius: 10, padding: 12 }}>
-                  <div style={{ fontWeight: 700 }}>Week {w.week}: {w.focus}</div>
-                  {w.notes ? <div style={{ marginTop: 6, opacity: 0.85 }}>{w.notes}</div> : null}
-                </div>
-              ))}
-            </div>
+          <h3 style={{ marginTop: 18 }}>Training Calendar</h3>
+
+          {events.length ? (
+            <PlanCalendar
+              events={events}
+              onEventClick={(info) => {
+                console.log("Clicked event:", info.event);
+              }}
+              onEventDrop={(info) => {
+                console.log("Moved event:", info.event.id, "to", info.event.startStr);
+              }}
+            />
           ) : (
-            <p>No outline yet.</p>
+            <p>No calendar sessions available yet.</p>
           )}
         </>
       )}

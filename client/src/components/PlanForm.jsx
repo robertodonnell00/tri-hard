@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generatePlan } from "../api/plansApi.js";
 
 const defaultPlan = {
   name: "",
   eventType: "sprint",
   raceDate: "",
+  startDate: "",
   daysPerWeek: 4,
   swimLevel: 3,
   bikeLevel: 3,
@@ -27,54 +28,38 @@ export default function PlanForm({
   const [error, setError] = useState("");
   const [generating, setGenerating] = useState(false);
 
+  useEffect(() => {
+    setForm(initial);
+  }, [initial]);
+
   function set(key, value) {
-    setForm((p) => ({ ...p, [key]: value }));
-  }
-
-  function addOutlineRow() {
-    const nextWeek =
-      form.outline.length > 0
-        ? Math.max(...form.outline.map((w) => w.week ?? 0)) + 1
-        : 1;
-
-    set("outline", [
-      ...form.outline,
-      { week: nextWeek, focus: "", notes: "" },
-    ]);
-  }
-
-  function updateOutlineRow(idx, key, value) {
-    const next = form.outline.map((row, i) =>
-      i === idx ? { ...row, [key]: value } : row
-    );
-    set("outline", next);
-  }
-
-  function removeOutlineRow(idx) {
-    const next = form.outline.filter((_, i) => i !== idx);
-    set("outline", next);
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function onGenerate() {
     setError("");
 
-    if (!form.eventType)
-      return setError("Event type is required to generate.");
-    if (!form.raceDate)
-      return setError("Race date is required to generate.");
+    if (!form.eventType) return setError("Event type is required to generate.");
+    if (!form.raceDate) return setError("Race date is required to generate.");
 
     setGenerating(true);
+
     try {
       const result = await generatePlan({
         eventType: form.eventType,
         raceDate: form.raceDate,
+        startDate: form.startDate || undefined,
         daysPerWeek: Number(form.daysPerWeek),
         swimLevel: Number(form.swimLevel),
         bikeLevel: Number(form.bikeLevel),
         runLevel: Number(form.runLevel),
       });
 
-      set("outline", result.outline);
+      setForm((prev) => ({
+        ...prev,
+        startDate: result.startDate ?? "",
+        outline: result.outline ?? [],
+      }));
     } catch (err) {
       setError(err.message || "Generation failed");
     } finally {
@@ -88,17 +73,22 @@ export default function PlanForm({
 
     if (!form.name.trim()) return setError("Name is required.");
     if (!form.raceDate) return setError("Race date is required.");
-    if (!form.daysPerWeek)
-      return setError("Days per week is required.");
+    if (!form.daysPerWeek) return setError("Days per week is required.");
+    if (!form.startDate) return setError("Generate the plan first so a start date is created.");
+    if (!form.outline?.length) return setError("Generate the outline before saving.");
 
     try {
-      await onSubmit({
+      const payload = {
         ...form,
         daysPerWeek: Number(form.daysPerWeek),
         swimLevel: Number(form.swimLevel),
         bikeLevel: Number(form.bikeLevel),
         runLevel: Number(form.runLevel),
-      });
+      };
+
+      console.log("Submitting plan payload:", payload);
+
+      await onSubmit(payload);
     } catch (err) {
       setError(err.message || "Failed to save plan");
     }
@@ -107,7 +97,11 @@ export default function PlanForm({
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: "grid", gap: 12, maxWidth: 720 }}
+      style={{
+        display: "grid",
+        gap: 16,
+        maxWidth: 760,
+      }}
     >
       {error && (
         <div
@@ -115,6 +109,7 @@ export default function PlanForm({
             padding: 10,
             border: "1px solid #f5c2c7",
             background: "#f8d7da",
+            borderRadius: 8,
           }}
         >
           {error}
@@ -139,8 +134,8 @@ export default function PlanForm({
         >
           <option value="sprint">Sprint</option>
           <option value="olympic">Olympic</option>
-          <option value="70.3">70.3</option>
-          <option value="140.6">140.6</option>
+          <option value="half-iron">70.3</option>
+          <option value="ironman">140.6</option>
         </select>
       </label>
 
@@ -150,6 +145,15 @@ export default function PlanForm({
           type="date"
           value={form.raceDate ? String(form.raceDate).slice(0, 10) : ""}
           onChange={(e) => set("raceDate", e.target.value)}
+        />
+      </label>
+
+      <label>
+        Training Start Date (optional)
+        <input
+          type="date"
+          value={form.startDate ? String(form.startDate).slice(0, 10) : ""}
+          onChange={(e) => set("startDate", e.target.value)}
         />
       </label>
 
@@ -181,6 +185,7 @@ export default function PlanForm({
             onChange={(e) => set("swimLevel", e.target.value)}
           />
         </label>
+
         <label>
           Bike Level
           <input
@@ -191,6 +196,7 @@ export default function PlanForm({
             onChange={(e) => set("bikeLevel", e.target.value)}
           />
         </label>
+
         <label>
           Run Level
           <input
@@ -204,98 +210,44 @@ export default function PlanForm({
       </div>
 
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <h3 style={{ margin: "8px 0" }}>Outline</h3>
-        <button type="button" onClick={addOutlineRow}>
-          + Add week
-        </button>
-        <button
-          type="button"
-          onClick={onGenerate}
-          disabled={generating}
-        >
+        <h3 style={{ margin: 0 }}>Outline</h3>
+        <button type="button" onClick={onGenerate} disabled={generating}>
           {generating ? "Generating..." : "Generate outline"}
         </button>
       </div>
 
-      {form.outline.length === 0 ? (
-        <div style={{ opacity: 0.7 }}>
-          No outline rows yet.
+      {form.startDate ? (
+        <div style={{ opacity: 0.8 }}>
+          Plan starts: {String(form.startDate).slice(0, 10)}
         </div>
+      ) : null}
+
+      {form.outline.length === 0 ? (
+        <div style={{ opacity: 0.7 }}>No generated outline yet.</div>
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {form.outline.map((row, idx) => (
             <div
-              key={idx}
+              key={row._id ?? idx}
               style={{
                 border: "1px solid #ddd",
-                padding: 10,
+                padding: 12,
                 borderRadius: 8,
                 display: "grid",
-                gap: 8,
+                gap: 6,
               }}
             >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "120px 1fr",
-                  gap: 10,
-                }}
-              >
-                <label>
-                  Week
-                  <input
-                    type="number"
-                    min={1}
-                    value={row.week ?? ""}
-                    onChange={(e) =>
-                      updateOutlineRow(
-                        idx,
-                        "week",
-                        Number(e.target.value)
-                      )
-                    }
-                  />
-                </label>
-                <label>
-                  Focus
-                  <input
-                    value={row.focus ?? ""}
-                    onChange={(e) =>
-                      updateOutlineRow(
-                        idx,
-                        "focus",
-                        e.target.value
-                      )
-                    }
-                    placeholder="e.g. Build aerobic base"
-                    style={{ width: "100%" }}
-                  />
-                </label>
+              <div style={{ fontWeight: 700 }}>
+                Week {row.week}: {row.focus}
               </div>
 
-              <label>
-                Notes
-                <textarea
-                  value={row.notes ?? ""}
-                  onChange={(e) =>
-                    updateOutlineRow(
-                      idx,
-                      "notes",
-                      e.target.value
-                    )
-                  }
-                  rows={2}
-                  style={{ width: "100%" }}
-                />
-              </label>
+              {row.notes ? (
+                <div style={{ opacity: 0.85 }}>{row.notes}</div>
+              ) : null}
 
-              <button
-                type="button"
-                onClick={() => removeOutlineRow(idx)}
-                style={{ width: "fit-content" }}
-              >
-                Remove
-              </button>
+              <div style={{ fontSize: 14, opacity: 0.75 }}>
+                Sessions: {row.sessions?.length ?? 0}
+              </div>
             </div>
           ))}
         </div>

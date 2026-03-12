@@ -1,5 +1,5 @@
 import { getDayOffset, formatDateToYYYYMMDD } from "./dateHelpers";
-import { getDisciplineColor } from "./disciplineColors";
+import { getDisciplineColor } from "./disciplineColours";
 
 export function mapPlanToEvents(plan) {
   if (!plan || !plan.startDate || !plan.outline) return [];
