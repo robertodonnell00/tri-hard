@@ -99,153 +99,210 @@ export default function PlanForm({
       onSubmit={handleSubmit}
       style={{
         display: "grid",
-        gap: 16,
-        maxWidth: 760,
-      }}
-    >
+        gap: "20px",
+        maxWidth: "760px",
+        margin: "0 auto",
+      }}>
       {error && (
         <div
           style={{
-            padding: 10,
-            border: "1px solid #f5c2c7",
-            background: "#f8d7da",
-            borderRadius: 8,
+            padding: "12px 14px",
+            border: "1px solid #fecaca",
+            background: "#fee2e2",
+            color: "#b91c1c",
+            borderRadius: "10px",
+            fontWeight: 600,
           }}
         >
           {error}
         </div>
       )}
 
-      <label>
-        Name
-        <input
-          value={form.name}
-          onChange={(e) => set("name", e.target.value)}
-          placeholder="e.g. Sprint Plan - March"
-          style={{ width: "100%" }}
-        />
-      </label>
-
-      <label>
-        Event Type
-        <select
-          value={form.eventType}
-          onChange={(e) => set("eventType", e.target.value)}
-        >
-          <option value="sprint">Sprint</option>
-          <option value="olympic">Olympic</option>
-          <option value="half-iron">70.3</option>
-          <option value="ironman">140.6</option>
-        </select>
-      </label>
-
-      <label>
-        Race Date
-        <input
-          type="date"
-          value={form.raceDate ? String(form.raceDate).slice(0, 10) : ""}
-          onChange={(e) => set("raceDate", e.target.value)}
-        />
-      </label>
-
-      <label>
-        Training Start Date (optional)
-        <input
-          type="date"
-          value={form.startDate ? String(form.startDate).slice(0, 10) : ""}
-          onChange={(e) => set("startDate", e.target.value)}
-        />
-      </label>
-
-      <label>
-        Days / Week
-        <input
-          type="number"
-          min={1}
-          max={7}
-          value={form.daysPerWeek}
-          onChange={(e) => set("daysPerWeek", e.target.value)}
-        />
-      </label>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 12,
-        }}
-      >
-        <label>
-          Swim Level
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <label className="form-field" style={{ alignItems: "center" }}>
+          <span>Name</span>
           <input
-            type="number"
-            min={1}
-            max={5}
-            value={form.swimLevel}
-            onChange={(e) => set("swimLevel", e.target.value)}
-          />
-        </label>
-
-        <label>
-          Bike Level
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={form.bikeLevel}
-            onChange={(e) => set("bikeLevel", e.target.value)}
-          />
-        </label>
-
-        <label>
-          Run Level
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={form.runLevel}
-            onChange={(e) => set("runLevel", e.target.value)}
+            className="form-input"
+            value={form.name}
+            onChange={(e) => set("name", e.target.value)}
+            placeholder="e.g. Sprint Plan - March"
+            style={{ textAlign: "center" }}
           />
         </label>
       </div>
 
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <h3 style={{ margin: 0 }}>Outline</h3>
-        <button type="button" onClick={onGenerate} disabled={generating}>
+      <div className="form-row" style={{ justifyContent: "center" }}>
+        <label className="form-field" style={{ alignItems: "center" }}>
+          <span>Event Type</span>
+          <select
+            className="form-input"
+            value={form.eventType}
+            onChange={(e) => set("eventType", e.target.value)}
+          >
+            <option value="sprint">Sprint</option>
+            <option value="olympic">Olympic</option>
+            <option value="half-iron">70.3</option>
+            <option value="ironman">140.6</option>
+          </select>
+        </label>
+
+        <label className="form-field">
+          <span>Race Date</span>
+          <input
+            className="form-input"
+            type="date"
+            value={form.raceDate ? String(form.raceDate).slice(0, 10) : ""}
+            onChange={(e) => set("raceDate", e.target.value)}
+          />
+        </label>
+
+        <label className="form-field">
+          <span>Training Start Date</span>
+          <input
+                className="form-input"
+                type="date"
+                value={form.startDate ? String(form.startDate).slice(0, 10) : ""}
+                onChange={(e) => set("startDate", e.target.value)}
+              />
+            </label>
+          </div>
+
+          <label className="form-field" style={{ alignItems: "center" }}>
+            <span>Days per Week</span>
+            <input
+              className="form-input number-input"
+              type="number"
+              min={1}
+              max={7}
+              value={form.daysPerWeek}
+              onChange={(e) => set("daysPerWeek", e.target.value)}
+            />
+          </label>
+
+          <div
+            className="form-row"
+            style={{ justifyContent: "center" }}
+          >
+          <label className="form-field" style={{ alignItems: "center" }}>
+            <span>Swim Level</span>
+            <input
+              className="form-input number-input"
+              type="number"
+              min={1}
+              max={5}
+              value={form.swimLevel}
+              onChange={(e) => set("swimLevel", e.target.value)}
+              style={{ textAlign: "center" }}
+            />
+          </label>
+
+          <label className="form-field" style={{ alignItems: "center" }}>
+            <span>Bike Level</span>
+            <input
+              className="form-input number-input"
+              type="number"
+              min={1}
+              max={5}
+              value={form.bikeLevel}
+              onChange={(e) => set("bikeLevel", e.target.value)}
+              style={{ textAlign: "center" }}
+            />
+          </label>
+
+          <label className="form-field" style={{ alignItems: "center" }}>
+            <span>Run Level</span>
+            <input
+              className="form-input number-input"
+              type="number"
+              min={1}
+              max={5}
+              value={form.runLevel}
+              onChange={(e) => set("runLevel", e.target.value)}
+              style={{ textAlign: "center" }}
+            />
+          </label>
+        </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              marginTop: "8px",
+              paddingTop: "20px",
+              borderTop: "1px solid #e5e7eb",
+            }}
+          >
+            <div>
+              <h3 style={{ margin: 0, color: "#111827" }}>Outline</h3>
+              <p style={{ margin: "4px 0 0", color: "#6b7280", fontSize: "14px" }}>
+                Generate or review the weekly training structure.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={onGenerate}
+              disabled={generating}
+              className="secondary-button"
+            >
           {generating ? "Generating..." : "Generate outline"}
         </button>
       </div>
 
       {form.startDate ? (
-        <div style={{ opacity: 0.8 }}>
+        <div
+          style={{
+            background: "#f9fafb",
+            border: "1px solid #e5e7eb",
+            padding: "10px 12px",
+            borderRadius: "10px",
+            color: "#374151",
+            fontSize: "14px",
+          }}
+        >
           Plan starts: {String(form.startDate).slice(0, 10)}
         </div>
       ) : null}
 
       {form.outline.length === 0 ? (
-        <div style={{ opacity: 0.7 }}>No generated outline yet.</div>
+        <div
+          style={{
+            background: "#f9fafb",
+            border: "1px dashed #d1d5db",
+            borderRadius: "10px",
+            padding: "20px",
+            color: "#6b7280",
+            textAlign: "center",
+          }}
+        >
+          No generated outline yet.
+        </div>
       ) : (
-        <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ display: "grid", gap: "12px" }}>
           {form.outline.map((row, idx) => (
             <div
               key={row._id ?? idx}
               style={{
-                border: "1px solid #ddd",
-                padding: 12,
-                borderRadius: 8,
+                border: "1px solid #e5e7eb",
+                background: "#ffffff",
+                padding: "16px",
+                borderRadius: "12px",
                 display: "grid",
-                gap: 6,
+                gap: "8px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
               }}
             >
-              <div style={{ fontWeight: 700 }}>
+              <div style={{ fontWeight: 700, color: "#111827" }}>
                 Week {row.week}: {row.focus}
               </div>
 
               {row.notes ? (
-                <div style={{ opacity: 0.85 }}>{row.notes}</div>
+                <div style={{ color: "#4b5563", lineHeight: 1.5 }}>{row.notes}</div>
               ) : null}
 
-              <div style={{ fontSize: 14, opacity: 0.75 }}>
+              <div style={{ fontSize: "14px", color: "#6b7280" }}>
                 Sessions: {row.sessions?.length ?? 0}
               </div>
             </div>
@@ -253,9 +310,9 @@ export default function PlanForm({
         </div>
       )}
 
-      <button disabled={submitting} type="submit">
+      <button disabled={submitting} type="submit" className="primary-button">
         {submitting ? "Saving..." : submitLabel}
       </button>
-    </form>
+</form>
   );
 }

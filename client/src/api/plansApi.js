@@ -54,13 +54,16 @@ export async function createPlan(payload) {
 
 export async function updatePlan(id, patch) {
   const res = await fetch(`${BASE}/api/plans/${id}`, {
-    method: "PATCH",
+    method: "PUT",
     headers: getAuthHeaders({
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     }),
     body: JSON.stringify(patch),
   });
-
+  if (!res.ok) {
+    throw new Error("Request failed");
+  }
   return handle(res);
 }
 

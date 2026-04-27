@@ -28,21 +28,105 @@ export default function PlanEditPage() {
   }, [id]);
 
   async function onSubmit(patch) {
-    setSubmitting(true);
+  setSubmitting(true);
+  setError("");
+
+  try {
     await updatePlan(id, patch);
     nav(`/plans/${id}`);
+  } catch (err) {
+    setError(err.message || "Request failed");
+    throw err;
+  } finally {
+    setSubmitting(false);
   }
+}
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ marginBottom: 12 }}>
-        <Link to={`/plans/${id}`}>← Back</Link>
+    <div
+        style={{
+          minHeight: "100vh",
+          background: "#f5f7fb",
+          padding: "32px",
+        }}
+      >
+  <div
+    style={{
+      maxWidth: "900px",
+      margin: "0 auto",
+    }}
+  >
+    <div style={{ marginBottom: "20px" }}>
+      <Link
+        to={`/plans/${id}`}
+        style={{
+          color: "#2563eb",
+          textDecoration: "none",
+          fontWeight: 600,
+        }}
+      >
+         Back to plan
+      </Link>
+    </div>
+
+    <div
+      style={{
+        background: "white",
+        borderRadius: "16px",
+        padding: "28px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
+        border: "1px solid #e5e7eb",
+      }}
+    >
+      <div style={{ marginBottom: "24px" }}>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "30px",
+            color: "#111827",
+          }}
+        >
+          Edit Plan
+        </h1>
+
+        <p
+          style={{
+            margin: "8px 0 0",
+            color: "#6b7280",
+          }}
+        >
+          Update your race details, training availability, and generated outline.
+        </p>
       </div>
 
-      <h1>Edit Plan</h1>
+      {loading && (
+        <p
+          style={{
+            background: "#eff6ff",
+            color: "#1d4ed8",
+            padding: "12px 14px",
+            borderRadius: "10px",
+            fontWeight: 600,
+          }}
+        >
+          Loading plan…
+        </p>
+      )}
 
-      {loading && <p>Loading…</p>}
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && (
+        <p
+          style={{
+            background: "#fee2e2",
+            color: "#b91c1c",
+            padding: "12px 14px",
+            borderRadius: "10px",
+            fontWeight: 600,
+          }}
+        >
+          {error}
+        </p>
+      )}
+
       {!loading && plan && (
         <PlanForm
           initialValue={plan}
@@ -52,5 +136,7 @@ export default function PlanEditPage() {
         />
       )}
     </div>
+  </div>
+</div>
   );
 }

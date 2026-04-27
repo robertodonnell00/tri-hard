@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -12,27 +13,34 @@ export default function Navbar() {
   }
 
   return (
-    <nav style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
-      <Link to="/plans" style={{ marginRight: "10px" }}>
-        Tri-Hard
-      </Link>
+    <nav className="navbar">
+      <div className="navbar-inner">
+        <Link to="/plans" className="navbar-brand">
+          <img src={logo} alt="Tri-Hard" className="navbar-logo" />
+          <span>Tri-Hard</span>
+        </Link>
 
-      {token ? (
-        <>
-          <span style={{ marginRight: "10px" }}>
-            {user?.name}
-          </span>
+        <div className="navbar-right">
+          {token ? (
+            <>
+              <span className="navbar-user">{user?.name}</span>
 
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <Link to="/login" style={{ marginRight: "10px" }}>
-            Login
-          </Link>
-          <Link to="/register">Register</Link>
-        </>
-      )}
+              <button className="navbar-logout" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="navbar-link">
+                Login
+              </Link>
+              <Link to="/register" className="navbar-primary">
+                Register
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
     </nav>
   );
 }

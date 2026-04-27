@@ -100,44 +100,23 @@ export async function createPlan(req, res) {
   }
 }
 
-export async function updatePlan(req, res) {
-  try {
-    const { id } = req.params;
+export async function updatePlan(id, data) {
+  const res = await fetch(`${API_BASE}/api/plans/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!isId(id)) {
-      return res.status(400).json({ error: "Invalid plan id" });
-    }
+  const body = await res.json().catch(() => null);
 
-    const updateData = { ...req.body };
-
-    // prevents user ownership being changed from the client
-    delete updateData.user;
-
-    const updated = await Plan.findOneAndUpdate(
-      {
-        _id: id,
-        user: req.user.id,
-      },
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ error: "Plan not found" });
-    }
-
-    res.json(updated);
-  } catch (err) {
-    const status = err?.name === "ValidationError" ? 400 : 500;
-
-    res.status(status).json({
-      error: "Failed to update plan",
-      details: err.message,
-    });
+  if (!res.ok) {
+    throw new Error(body?.details || body?.error || "Request failed");
   }
+
+  return body;
 }
 
 export async function deletePlan(req, res) {

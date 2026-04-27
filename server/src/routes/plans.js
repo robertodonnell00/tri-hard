@@ -12,10 +12,11 @@ import {
 const router = express.Router();
 
 router.get("/", protect, listPlans);
-router.get("/:id", protect, getPlan);
 router.post("/", protect, createPlan);
+router.post("/generate", protect, generatePlan);
+router.get("/:id", protect, getPlan);
 router.put("/:id", protect, updatePlan);
 router.delete("/:id", protect, deletePlan);
-router.post("/generate", protect, generatePlan);
+
 
 export default router;

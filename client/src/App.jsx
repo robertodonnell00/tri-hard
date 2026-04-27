@@ -9,7 +9,7 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import PlansListPage from "./pages/PlansListPage.jsx";
 import PlanCreatePage from "./pages/PlanCreatePage.jsx";
 import PlanEditPage from "./pages/PlanEditPage.jsx";
-import PlanViewPage from "./pages/PlanViewPage.jsx";
+import PlanViewPage from "./pages/PlanViewPage.jsx";import "./App.css";
 
 export default function App() {
   return (

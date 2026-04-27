@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -47,36 +48,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: "400px", margin: "auto" }}>
-      <h1>Login</h1>
+   <div className="auth-page">
+      <div className="auth-card">
+        <img src={logo} alt="Tri-Hard" className="auth-logo" />
+        <h1 className="auth-title">Login</h1>
+        <p className="auth-subtitle">Welcome back to Tri-Hard</p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit} className="auth-form">
+          <input
+            className="auth-input"
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+          <input
+            className="auth-input"
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
 
-        <button type="submit">Login</button>
-      </form>
+          <button className="auth-button" type="submit">
+            Login
+          </button>
+        </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-      <p>
-        Don’t have an account? <Link to="/register">Register</Link>
-      </p>
+        <p className="auth-footer">
+          Don’t have an account? <Link to="/register">Register</Link>
+        </p>
+      </div>
     </div>
   );
 }
