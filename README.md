@@ -44,13 +44,6 @@ The application focuses on accessibility and ease of use, offering an alternativ
 - models/ # MongoDB schemas
 
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js
-- MongoDB (local or Atlas)
-
 ## API Endpoints
 GET /api/plans – Get all plans
 GET /api/plans/:id – Get a single plan
