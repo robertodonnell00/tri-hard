@@ -16,7 +16,7 @@ export default function PlanCreatePage() {
   return (
     <div style={{ padding: 20 }}>
       <div style={{ marginBottom: 12 }}>
-        <Link to="/plans">← Back</Link>
+        <Link to="/plans"> Back</Link>
       </div>
       <h1>Create Plan</h1>
       <PlanForm onSubmit={onSubmit} submitting={submitting} submitLabel="Create" />
